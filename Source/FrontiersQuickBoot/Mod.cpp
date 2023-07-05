@@ -28,6 +28,7 @@ HOOK(void, __fastcall, UINoticeBoardEnter, sigUINoticeBoardEnter(), size_t a1, s
 }
 
 std::string stageId;
+int stateType;
 int stageType;
 
 SIG_SCAN
@@ -113,6 +114,29 @@ HOOK(size_t, __fastcall, StateTitle, sigStateTitle(), size_t a1, size_t a2, size
     switch (signal)
     {
     case 0:
+        switch (stateType)
+        {
+        case 1:
+            stageType = 'f';
+            break;
+
+        case 2:
+            stageType = 'h';
+            break;
+
+        case 3:
+            stageType = 'r';
+            break;
+
+        case 4:
+            stageType = 't';
+            break;
+
+        case 5:
+            stageType = 'd';
+            break;
+        }
+
         switch (stageType)
         {
         case 'f': 
@@ -217,16 +241,20 @@ extern "C" __declspec(dllexport) void Init()
 
     stageId = reader.Get("Mod", "StageId", std::string());
     int bootType = reader.GetInteger("Mod", "Type", NORMAL);
+    stateType = reader.GetInteger("Mod", "State", 0);
     int saveSlot = reader.GetInteger("Mod", "SaveSlot", 3);
     bool disableAutoSave = reader.GetBoolean("Mod", "DisableAutoSave", true);
 
     if (stageId.size() < 3)
         fatalError(TEXT("Invalid stage id"));
 
-    stageType = stageId[2];
+    if (stateType == 0)
+    {
+        stageType = stageId[2];
 
-    if (stageId == "w5r01")
-        stageType = 'h';
+        if (stageId == "w5r01")
+            stageType = 'h';
+    }
 
     if (bootType != NORMAL)
     {
